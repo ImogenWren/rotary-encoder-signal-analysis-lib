@@ -46,8 +46,8 @@ uint32_t delayTime_uS = timeLow_uS;
 uint32_t testTime = 0;
 int32_t timeDifference;
 
-uint16_t printLoop = 19600;
-uint16_t iteration = 0;
+uint32_t printLoop = 19800;
+uint32_t iteration = 0;
 uint16_t printing = 0;
 
 void loop() {
@@ -59,10 +59,10 @@ void loop() {
     lastEvent_uS = micros();
 
 #if DEBUG_OUTPUT == true
-    if (iteration == printLoop || iteration >= (printLoop + 3)) {
+    if (iteration == printLoop || iteration >= (printLoop + 3)) {    // This makes sure the timing test is only done every few loops so the printing time doesnt affect the test
       Serial.print("Timing Test: State:  ");
       Serial.print(current_op_state);
-      Serial.print(", Time (uS): ");
+      Serial.print(", Target Time (uS): ");
       Serial.print(testTime);
       Serial.print(", delayTime (uS): ");
       Serial.print(delayTime_uS);
