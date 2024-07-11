@@ -7,7 +7,7 @@
 
 #define OUTPUT_PIN 2
 
-#define ROTATION_HZ 1
+#define ROTATION_HZ 0.00093
 #define PULSE_DUTY 0.8
 
 #define PULSES_PER_REVOLUTION 1200
@@ -79,5 +79,6 @@ void loop() {
       delayTime_uS = timeLow_uS;
     }
   }
+
   iteration++;
 }
