@@ -99,3 +99,6 @@ void encoderWrap(void){
       encoderPos += ROTARY_PPR*2;
       }
 }
+
+
+

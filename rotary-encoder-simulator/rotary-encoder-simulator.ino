@@ -10,7 +10,7 @@
 #define ROTATION_HZ 10
 #define PULSE_DUTY 0.3
 
-#define PULSES_PER_REVOLUTION 1200
+#define PULSES_PER_REVOLUTION 1
 
 float pulse_Hz = ROTATION_HZ * PULSES_PER_REVOLUTION;
 uint32_t period_uS = 1.0 / float(pulse_Hz) * 1000000;
