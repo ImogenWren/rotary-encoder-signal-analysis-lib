@@ -7,8 +7,8 @@
 
 #define OUTPUT_PIN 2
 
-#define ROTATION_HZ 0.00093
-#define PULSE_DUTY 0.8
+#define ROTATION_HZ 1
+#define PULSE_DUTY 0.3
 
 #define PULSES_PER_REVOLUTION 1200
 
@@ -25,7 +25,7 @@ void setup() {
   Serial.print("Rotation Hz: ");
   Serial.print(ROTATION_HZ);
   Serial.print(", Pulse Hz: ");
-
+  Serial.print(pulse_Hz);
   Serial.print(", Duty: ");
   Serial.print(PULSE_DUTY);
   Serial.print(", Period(uS): ");
@@ -46,8 +46,9 @@ uint32_t delayTime_uS = timeLow_uS;
 uint32_t testTime = 0;
 int32_t timeDifference;
 
-uint16_t printLoop = 1200;
+uint16_t printLoop = 19600;
 uint16_t iteration = 0;
+uint16_t printing = 0;
 
 void loop() {
   if (micros() - lastEvent_uS >= delayTime_uS) {
@@ -58,7 +59,7 @@ void loop() {
     lastEvent_uS = micros();
 
 #if DEBUG_OUTPUT == true
-    if (iteration >= printLoop) {
+    if (iteration == printLoop || iteration >= (printLoop + 3)) {
       Serial.print("Timing Test: State:  ");
       Serial.print(current_op_state);
       Serial.print(", Time (uS): ");
@@ -67,9 +68,14 @@ void loop() {
       Serial.print(delayTime_uS);
       Serial.print(", Difference (uS): ");
       timeDifference = testTime - delayTime_uS;
-      Serial.println(timeDifference);
-      if (iteration >= printLoop + 3) {
+      Serial.print(timeDifference);
+     // Serial.print(", printing: ");
+     // Serial.print(printing);
+      Serial.println();
+      printing++;
+      if (printing >= 1) {
         iteration = 0;
+        printing = 0;
       }
     }
 #endif
@@ -79,6 +85,6 @@ void loop() {
       delayTime_uS = timeLow_uS;
     }
   }
-
   iteration++;
+ // Serial.println(iteration);
 }
