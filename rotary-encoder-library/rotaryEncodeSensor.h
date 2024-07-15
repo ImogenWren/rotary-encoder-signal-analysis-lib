@@ -48,8 +48,8 @@ public:
       interruptPinA(_interruptPin),
       encoderType(_encoderType) {
     strcpy(moduleName, _moduleID);
-    instance = this;                // Store the instance pointer
-        attachInterrupt(digitalPinToInterrupt(interruptPinA), _isr_A, CHANGE);  // interrupt 0 is pin 2
+    instance = this;                                                            // Store the instance pointer
+    attachInterrupt(digitalPinToInterrupt(interruptPinA), isrHandler, CHANGE);  // interrupt 0 is pin 2
   }
 
   // Constants
@@ -145,7 +145,7 @@ public:
 
 
 
-  void _isr_A();
+  void handleInterruptA();
 
 
 
@@ -163,7 +163,10 @@ private:
   static rotaryEncodeSensor* instance;
 
   static void isrHandler();
+
+  
 };
+
 
 
 #endif

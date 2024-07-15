@@ -20,7 +20,7 @@ Imogen Heard
 #define ENCODER_TYPE ONE_WIRE
 #define SENSOR_NAME "flow-meter"
 
-rotaryEncodeSensor flowMeter(PULSES_PER_LITRE, INTERRUPT_PIN, ENCODER_TYPE, SENSOR_NAME);
+rotaryEncodeSensor flowMeter; 
 
 #include <autoDelay.h>
 autoDelay printDelay;
@@ -28,6 +28,7 @@ autoDelay printDelay;
 
 void setup() {
   Serial.begin(115200);
+  flowMeter = rotaryEncodeSensor(PULSES_PER_LITRE, INTERRUPT_PIN, ENCODER_TYPE, SENSOR_NAME);
   flowMeter.begin();
  //  attachInterrupt(digitalPinToInterrupt(flowMeter.interruptPinA), ISR_A, CHANGE);  // interrupt 0 is pin 2
 }
@@ -50,5 +51,5 @@ void loop() {
 
 
 void ISR_A() {
-  flowMeter._isr_A();
+//  flowMeter._isr_A();
 }

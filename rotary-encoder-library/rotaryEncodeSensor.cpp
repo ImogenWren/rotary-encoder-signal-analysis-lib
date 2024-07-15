@@ -2,6 +2,7 @@
 
 #include "rotaryEncodeSensor.h"
 
+rotaryEncodeSensor* rotaryEncodeSensor::instance = nullptr;
 
 void rotaryEncodeSensor::begin() {
   if (encoderType == ONE_WIRE || encoderType == TWO_WIRE) {
@@ -112,7 +113,13 @@ void rotaryEncodeSensor::encoderWrap(void) {
   }
 }
 
-void rotaryEncodeSensor::_isr_A() {
+static void rotaryEncodeSensor::isrHandler() {
+  if (instance) {
+    instance->handleInterruptA();
+  }
+}
+
+void rotaryEncodeSensor::handleInterruptA() {
   A_state = digitalRead(interruptPinA);
   previousSampleTime_uS = currentSampleTime_uS;
   currentSampleTime_uS = micros();
