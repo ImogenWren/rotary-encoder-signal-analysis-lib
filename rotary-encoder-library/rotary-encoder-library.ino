@@ -29,7 +29,7 @@ autoDelay printDelay;
 void setup() {
   Serial.begin(115200);
   flowMeter.begin();
-  attachInterrupt(digitalPinToInterrupt(flowMeter.interruptPinA), ISR_A, CHANGE);  // interrupt 0 is pin 2
+ //  attachInterrupt(digitalPinToInterrupt(flowMeter.interruptPinA), ISR_A, CHANGE);  // interrupt 0 is pin 2
 }
 
 void loop() {

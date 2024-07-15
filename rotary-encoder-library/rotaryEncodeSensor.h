@@ -48,6 +48,8 @@ public:
       interruptPinA(_interruptPin),
       encoderType(_encoderType) {
     strcpy(moduleName, _moduleID);
+    instance = this;                // Store the instance pointer
+        attachInterrupt(digitalPinToInterrupt(interruptPinA), _isr_A, CHANGE);  // interrupt 0 is pin 2
   }
 
   // Constants
@@ -149,6 +151,7 @@ public:
 
 
 private:
+
   float secondsElapsed();
   void encoderWrap();
 
@@ -156,6 +159,10 @@ private:
   uint32_t currentSampleTime_uS = 0;
   uint32_t previousSampleTime_uS = 0;
   int16_t posOffset = 0;
+
+  static rotaryEncodeSensor* instance;
+
+  static void isrHandler();
 };
 
 

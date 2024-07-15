@@ -6,6 +6,7 @@
 void rotaryEncodeSensor::begin() {
   if (encoderType == ONE_WIRE || encoderType == TWO_WIRE) {
     pinMode(interruptPinA, INPUT_PULLUP);
+
     //  attachInterrupt(digitalPinToInterrupt(ENCODER_WHITE), doEncoderA, CHANGE);  // interrupt 0 is pin 2
   }
   if (encoderType == TWO_WIRE) {
