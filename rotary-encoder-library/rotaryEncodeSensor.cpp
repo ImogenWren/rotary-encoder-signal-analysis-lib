@@ -14,10 +14,28 @@ void rotaryEncodeSensor::begin() {
   }
 }
 
-//void rotaryEncodeSensor::loopFunc(){
-//  encoderPos += (A_state == B_state) ? +1 : -1;
-//  rotaryEncodeSensor::encoderWrap();/
-//}
+
+
+void rotaryEncodeSensor::analyseSignal() {
+  if (ISR_triggered) {
+    if (!A_state) {  // if A_state is currently low, then we are calculating the HIGH period
+      signal_time_high = currentSampleTime_uS - previousSampleTime_uS;
+    } else {
+      signal_time_low = currentSampleTime_uS - previousSampleTime_uS;
+    }
+    signal_period_uS = signal_time_low + signal_time_high;
+    signal_Hz = 1000000.0 / float(signal_period_uS);
+    signal_duty = float(signal_time_high) / float(signal_period_uS);
+    ISR_triggered = false;
+  }
+}
+
+float rotaryEncodeSensor::getFreq() {
+  return signal_Hz;
+}
+float rotaryEncodeSensor::getDuty() {
+  return signal_duty;
+}
 
 
 void rotaryEncodeSensor::printPosStats() {
@@ -39,15 +57,15 @@ void rotaryEncodeSensor::printSignalStats() {
   char timeString[16];
   char HzString[12];
   char dutyString[12];
-  dtostrf(secondsElapsed(), 8, 3, timeString);  
+  dtostrf(secondsElapsed(), 8, 3, timeString);
 
-  if (signal_Hz < 99) {                    
-    dtostrf(signal_Hz, 4, 2, HzString);   // More precision for lower Hz vals
+  if (signal_Hz < 99) {
+    dtostrf(signal_Hz, 4, 2, HzString);  // More precision for lower Hz vals
   } else {
-    dtostrf(signal_Hz, 4, 0, HzString);   // tidy up Hz print for higher values
+    dtostrf(signal_Hz, 4, 0, HzString);  // tidy up Hz print for higher values
   }
   dtostrf(signal_duty, 4, 2, dutyString);
-  sprintf(buffer, "Time: %s -> High: %4lu, Low: %4lu, Period: %3lu, Hz: %s, Duty: %s", timeString, signal_time_high, signal_time_low, signal_period, HzString, dutyString);  //
+  sprintf(buffer, "%s: Time: %s, High: %4lu, Low: %4lu, Period: %3lu, Hz: %s, Duty: %s", moduleName, timeString, signal_time_high, signal_time_low, signal_period_uS, HzString, dutyString);  //
   Serial.println(buffer);
 }
 
@@ -67,39 +85,19 @@ void rotaryEncodeSensor::convertPosRad() {
 }
 
 
-void rotaryEncodeSensor::analyseSignal() {
-  if (ISR_triggered) {
-    if (!A_state) {  // if A_state is currently low, then we are calculating the HIGH period
-      signal_time_high = currentSampleTime_uS - previousSampleTime_uS;
-      //  Serial.print("Completed HIGH cycle: ");
-      // Serial.println(signal_time_high);
-    } else {
-      signal_time_low = currentSampleTime_uS - previousSampleTime_uS;
-      //  Serial.print("Completed Low  cycle: ");
-      //   Serial.println(signal_time_low);
-    }
-    // Serial.print("currentTime: ");
-    // Serial.print(currentSampleTime_uS);
-    // Serial.print(", PreviousTime: ");
-    // Serial.print(previousSampleTime_uS);
-    //  Serial.print(", Difference: ");
-    //  Serial.println(currentSampleTime_uS - previousSampleTime_uS);
-    signal_period = signal_time_low + signal_time_high;
-    signal_Hz = 1000000.0 / float(signal_period);
-    signal_duty = float(signal_time_high) / float(signal_period);
-
-    ISR_triggered = false;
-  }
-}
 
 
 void rotaryEncodeSensor::calculateSpeed_radSec() {
 }
 
-void rotaryEncodeSensor::calculateSpeed_rpm() {
+float rotaryEncodeSensor::calculateSpeed_rpm() {
+  float revolutions_per_minute = rotaryEncodeSensor::calculateSpeed_rps() * 60.0;
+  return revolutions_per_minute;
 }
 
-void rotaryEncodeSensor::calculateSpeed_rps() {
+float rotaryEncodeSensor::calculateSpeed_rps() {
+  float revolutions_per_second = signal_Hz / pulses_per_revolution;
+  return revolutions_per_second;
 }
 
 

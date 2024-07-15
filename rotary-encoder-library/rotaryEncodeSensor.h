@@ -66,11 +66,11 @@ public:
 
   // Signal Variables
 
-  bool A_state = false;
+  bool A_state = false;  // Last state of the A input
   bool B_state = false;
   uint32_t signal_time_high = 0;
   uint32_t signal_time_low = 0;
-  uint32_t signal_period;
+  uint32_t signal_period_uS;
   float signal_Hz = 0.0;
   float signal_duty = 0.0;
 
@@ -104,36 +104,43 @@ public:
 
   direction currentDirection = UNDEFINED;
 
-  struct dataArray {
-    uint16_t i_data[8];        // Always holds the direct ADC value read from data aquisition module
-    float f_data[8];           // holds the calculated voltage or current value, or a copy of the ADC as a float
-    uint32_t timeStamp_mS[8];  // holds the time data was sampled in mS from time of power up
-  } d_array;
+  // struct dataArray {
+  //   uint16_t i_data[8];        // Always holds the direct ADC value read from data aquisition module
+  //   float f_data[8];           // holds the calculated voltage or current value, or a copy of the ADC as a float
+  //   uint32_t timeStamp_mS[8];  // holds the time data was sampled in mS from time of power up
+  // } d_array;
 
   // Digital Data Structures
 
 
-  // Methods
-
+  // Functional Methods
   void begin();
+  void analyseSignal();
+
+
+  // API - Use to interact with library
+  void printSignalStats();
+  float getFreq();
+  float getDuty();
+  float calculateSpeed_rps();
+  float calculateSpeed_rpm();
 
   void calibrate_position();
 
-  void analyseSignal();
+
 
   void convertPosDeg();
 
   void convertPosRad();
 
   void calculateSpeed_radSec();
-  void calculateSpeed_rpm();
-  void calculateSpeed_rps();
+
+
 
   void printPosStats();
 
-  void printSignalStats();
 
-  float secondsElapsed();
+
 
 
   void _isr_A();
@@ -142,7 +149,7 @@ public:
 
 
 private:
-
+  float secondsElapsed();
   void encoderWrap();
 
 
