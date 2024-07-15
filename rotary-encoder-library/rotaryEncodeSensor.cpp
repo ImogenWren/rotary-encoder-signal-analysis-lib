@@ -14,7 +14,10 @@ void rotaryEncodeSensor::begin() {
   }
 }
 
-
+//void rotaryEncodeSensor::loopFunc(){
+//  encoderPos += (A_state == B_state) ? +1 : -1;
+//  rotaryEncodeSensor::encoderWrap();/
+//}
 
 
 void rotaryEncodeSensor::printPosStats() {
@@ -32,17 +35,19 @@ void rotaryEncodeSensor::printPosStats() {
 
 
 void rotaryEncodeSensor::printSignalStats() {
-  char buffer[64];
+  char buffer[128];
   char timeString[16];
-  char timeHighString[12];
-  char timeLowString[12];
-  char periodString[12];
   char HzString[12];
   char dutyString[12];
-  dtostrf(secondsElapsed(), 8, 3, timeString);  // Convert float to char string as sprintf() does not work with floats in arduino
-                                                // dtostrf(timeHighString, 8, 2, timeHighString);         // Convert float to char string as sprintf() does not work with floats in arduino
-  dtostrf(signal_period, 4, 2, dutyString);
-  sprintf(buffer, "%s -> High: %5i, Low: %5i, Period: %3i, Hz: %3i, Duty: %s", timeString, signal_time_high, signal_time_low, signal_period, signal_Hz, dutyString);  // Do it this way to keep coloumns of data in line.
+  dtostrf(secondsElapsed(), 8, 3, timeString);  
+
+  if (signal_Hz < 99) {                    
+    dtostrf(signal_Hz, 4, 2, HzString);   // More precision for lower Hz vals
+  } else {
+    dtostrf(signal_Hz, 4, 0, HzString);   // tidy up Hz print for higher values
+  }
+  dtostrf(signal_duty, 4, 2, dutyString);
+  sprintf(buffer, "Time: %s -> High: %4lu, Low: %4lu, Period: %3lu, Hz: %s, Duty: %s", timeString, signal_time_high, signal_time_low, signal_period, HzString, dutyString);  //
   Serial.println(buffer);
 }
 
@@ -65,14 +70,24 @@ void rotaryEncodeSensor::convertPosRad() {
 void rotaryEncodeSensor::analyseSignal() {
   if (ISR_triggered) {
     if (!A_state) {  // if A_state is currently low, then we are calculating the HIGH period
-      signal_time_low = currentSampleTime_uS - previousSampleTime_uS;
-    } else {
       signal_time_high = currentSampleTime_uS - previousSampleTime_uS;
+      //  Serial.print("Completed HIGH cycle: ");
+      // Serial.println(signal_time_high);
+    } else {
+      signal_time_low = currentSampleTime_uS - previousSampleTime_uS;
+      //  Serial.print("Completed Low  cycle: ");
+      //   Serial.println(signal_time_low);
     }
+    // Serial.print("currentTime: ");
+    // Serial.print(currentSampleTime_uS);
+    // Serial.print(", PreviousTime: ");
+    // Serial.print(previousSampleTime_uS);
+    //  Serial.print(", Difference: ");
+    //  Serial.println(currentSampleTime_uS - previousSampleTime_uS);
     signal_period = signal_time_low + signal_time_high;
-    signal_Hz = 1.0 / (signal_period / 10000000);
-    signal_duty = float(signal_period) / float(signal_time_high);
-  //  signal_duty = signal_time_high / signal_time_low;
+    signal_Hz = 1000000.0 / float(signal_period);
+    signal_duty = float(signal_time_high) / float(signal_period);
+
     ISR_triggered = false;
   }
 }
@@ -99,7 +114,7 @@ void rotaryEncodeSensor::encoderWrap(void) {
 }
 
 void rotaryEncodeSensor::_isr_A() {
-  A_state = digitalRead(interruptPinA) == HIGH;
+  A_state = digitalRead(interruptPinA);
   previousSampleTime_uS = currentSampleTime_uS;
   currentSampleTime_uS = micros();
   encoderLastPos = encoderPos;

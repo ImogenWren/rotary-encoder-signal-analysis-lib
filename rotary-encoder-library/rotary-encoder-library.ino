@@ -12,7 +12,7 @@ rotaryEncodeSensor flowMeter(PULSES_PER_REVOLUTION, INTERRUPT_PIN, ENCODER_TYPE,
 #include <autoDelay.h>
 
 autoDelay printDelay;
-#define PRINT_DELAYTIME_mS 3000
+#define PRINT_DELAYTIME_mS 2000
 
 void setup() {
   Serial.begin(115200);

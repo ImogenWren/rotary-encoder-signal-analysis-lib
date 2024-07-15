@@ -45,12 +45,13 @@ public:
 
   rotaryEncodeSensor(uint16_t _pulses_per_revolution = 1200, const int _interruptPin = 2, encoderTypes _encoderType = ONE_WIRE, const char _moduleID[32] = { "encode" })
     : pulses_per_revolution(_pulses_per_revolution),
-      encoderType(_encoderType),
-      interruptPinA(_interruptPin) {
+      interruptPinA(_interruptPin),
+      encoderType(_encoderType) {
     strcpy(moduleName, _moduleID);
   }
 
   // Constants
+  int16_t pulses_per_revolution;
   int interruptPinA;
   int interruptPinB;
   encoderTypes encoderType = ONE_WIRE;
@@ -59,20 +60,19 @@ public:
   // Variables
   char moduleName[32] = { "rotary-encoder" };
 
-bool ISR_triggered = false;
+  bool ISR_triggered = false;
 
-  // Pulses per revolution
-  uint16_t pulses_per_revolution = 1200;
+
 
   // Signal Variables
 
   bool A_state = false;
   bool B_state = false;
+  uint32_t signal_time_high = 0;
+  uint32_t signal_time_low = 0;
   uint32_t signal_period;
-  uint32_t signal_time_high;
-  uint32_t signal_time_low;
-  int16_t signal_Hz;
-  float signal_duty;
+  float signal_Hz = 0.0;
+  float signal_duty = 0.0;
 
   // Encoder Position Variables
   int16_t encoderPos;

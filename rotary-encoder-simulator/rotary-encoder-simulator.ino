@@ -7,8 +7,8 @@
 
 #define OUTPUT_PIN 2
 
-#define ROTATION_HZ 10
-#define PULSE_DUTY 0.3
+#define ROTATION_HZ 100
+#define PULSE_DUTY 0.4
 
 #define PULSES_PER_REVOLUTION 1
 
