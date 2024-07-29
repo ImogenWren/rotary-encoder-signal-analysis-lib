@@ -57,19 +57,22 @@ public:
   encoderTypes encoderType = ONE_WIRE;
 
 
+
   // Variables
   char moduleName[32] = { "rotary-encoder" };
 
   bool ISR_triggered = false;
 
-
+  // Control Vars
+  uint32_t timeout_uS = 30000;  // if signal_time_high_uS or signal_time_low_uS are greater than this value, duty is assumed to be (1 or 0)// TRY THIS FIRST
+  // OR: could be implemented such if ISR has not been triggered within this time, duty is assumed to be last state // TRY THIS SECOND (but put in place variables to make it so)
 
   // Signal Variables
 
   bool A_state = false;  // Last state of the A input
   bool B_state = false;
-  uint32_t signal_time_high = 0;
-  uint32_t signal_time_low = 0;
+  uint32_t signal_time_high_uS = 0;
+  uint32_t signal_time_low_uS = 0;
   uint32_t signal_period_uS;
   float signal_Hz = 0.0;
   float signal_duty = 0.0;
