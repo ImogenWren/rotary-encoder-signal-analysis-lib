@@ -102,17 +102,21 @@ void rotaryEncodeSensor::convertPosRad() {
 void rotaryEncodeSensor::calculateSpeed_radSec() {
 }
 
-float rotaryEncodeSensor::calculateSpeed_rpm() {
-  float revolutions_per_minute = rotaryEncodeSensor::calculateSpeed_rps() * 60.0;
-  return revolutions_per_minute;
-}
 
 float rotaryEncodeSensor::calculateSpeed_rps() {
   float revolutions_per_second = signal_Hz / pulses_per_revolution;
   return revolutions_per_second;
 }
 
+float rotaryEncodeSensor::calculateSpeed_rpm() {
+  float revolutions_per_minute = rotaryEncodeSensor::calculateSpeed_rps() * 60.0;
+  return revolutions_per_minute;
+}
 
+float rotaryEncodeSensor::calculateSpeed_rph() {
+  float revolutions_per_hour = rotaryEncodeSensor::calculateSpeed_rpm() * 60.0;
+  return revolutions_per_hour;
+}
 
 
 void rotaryEncodeSensor::encoderWrap(void) {

@@ -127,6 +127,7 @@ public:
   float getDuty();
   float calculateSpeed_rps();
   float calculateSpeed_rpm();
+  float calculateSpeed_rph();
 
   void calibrate_position();
 
