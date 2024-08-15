@@ -19,27 +19,15 @@ void rotaryEncodeSensor::begin() {
 void rotaryEncodeSensor::analyseSignal() {
   if (ISR_triggered) {
     if (!A_state) {  // if A_state is currently low, then we are calculating the HIGH period
-      signal_time_high_uS = currentSampleTime_uS - previousSampleTime_uS;
+      signal_time_high = currentSampleTime_uS - previousSampleTime_uS;
     } else {
-      signal_time_low_uS = currentSampleTime_uS - previousSampleTime_uS;
+      signal_time_low = currentSampleTime_uS - previousSampleTime_uS;
     }
-    signal_period_uS = signal_time_low_uS + signal_time_high_uS;
+    signal_period_uS = signal_time_low + signal_time_high;
     signal_Hz = 1000000.0 / float(signal_period_uS);
-    signal_duty = float(signal_time_high_uS) / float(signal_period_uS);
+    signal_duty = float(signal_time_high) / float(signal_period_uS);
     ISR_triggered = false;
   }
-
-  // this code snippit seems to be working well
-  if (micros() - currentSampleTime_uS >= timeout_uS) {     // Makes sure that the output properly reflects a stopped encoder
-    signal_duty = A_state;
-    signal_Hz = 0;
-  }
-
-  // This code snippet also seems to work well, but I prefer the previous implementation
-  //  if (signal_time_high_uS > timeout_uS || signal_time_low_uS > timeout_uS) {   // Different Method to make sure that the output properly reflects a stopped encoder
-  //signal_duty = A_state;
-  // signal_Hz = 0;
-  // }
 }
 
 float rotaryEncodeSensor::getFreq() {
@@ -77,7 +65,7 @@ void rotaryEncodeSensor::printSignalStats() {
     dtostrf(signal_Hz, 4, 0, HzString);  // tidy up Hz print for higher values
   }
   dtostrf(signal_duty, 4, 2, dutyString);
-  sprintf(buffer, "%s: Time: %s, High: %4lu, Low: %4lu, Period: %3lu, Hz: %s, Duty: %s", moduleName, timeString, signal_time_high_uS, signal_time_low_uS, signal_period_uS, HzString, dutyString);  //
+  sprintf(buffer, "%s: Time: %s, High: %4lu, Low: %4lu, Period: %3lu, Hz: %s, Duty: %s", moduleName, timeString, signal_time_high, signal_time_low, signal_period_uS, HzString, dutyString);  //
   Serial.println(buffer);
 }
 
