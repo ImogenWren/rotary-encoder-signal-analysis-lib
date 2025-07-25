@@ -1,0 +1,190 @@
+
+/*   rotaryEncodeSensor.h
+
+  arduino/c++ library for sensing of rotary encoders & other Pulsed signals
+
+  Imogen Heard
+    11/07/2024
+
+
+// For info on available interrupt pins etc
+
+https://github.com/arduino/ArduinoCore-samd/blob/master/variants/nano_33_iot/variant.cpp
+
+// We have wired to:
+
+
+- A7  -> PB03 -> EXTERNAL_INT_3
+- D13 -> PA17 -> EXTERNAL_INT_1
+
+*/
+
+#pragma once
+
+#ifndef rotaryEncodeSensor_h
+#define rotaryEncodeSensor_h
+
+
+
+#if (ARDUINO >= 100)
+#include "Arduino.h"
+#else
+#include "WProgram.h"
+#endif
+
+#include <avr/dtostrf.h>  // For some reason SAMD21 libraries does not include this
+
+
+
+// define type for rotary encoder
+typedef enum {
+  UNDEFINED,
+  ONE_WIRE,
+  TWO_WIRE,
+  THREE_WIRE
+} encoderTypes;
+
+
+
+
+class rotaryEncodeSensor {
+
+
+public:
+
+
+  // Constructor
+
+  rotaryEncodeSensor(uint16_t _pulses_per_revolution = 1200, const int _interruptPin = 2, encoderTypes _encoderType = ONE_WIRE, const char _moduleID[32] = { "encode" })
+    : pulses_per_revolution(_pulses_per_revolution),
+      interruptPinA(_interruptPin),
+      encoderType(_encoderType) {
+    strcpy(moduleName, _moduleID);
+  }
+
+
+  rotaryEncodeSensor(uint16_t _pulses_per_revolution = 1200, const int _interruptPinA = 2, const int _interruptPinB = 2, encoderTypes _encoderType = TWO_WIRE, const char _moduleID[32] = { "encode" })
+    : pulses_per_revolution(_pulses_per_revolution),
+      interruptPinA(_interruptPinA),
+      interruptPinB(_interruptPinB),
+      encoderType(_encoderType) {
+    strcpy(moduleName, _moduleID);
+  }
+
+
+
+  // Constants
+ const int16_t pulses_per_revolution;
+  int interruptPinA;
+  int interruptPinB;
+  encoderTypes encoderType = ONE_WIRE;
+
+
+
+  // Variables
+  char moduleName[32] = { "rotary-encoder" };
+
+  volatile bool ISR_triggered = false;
+
+  // Control Vars
+  uint32_t timeout_uS = 30000;  // if signal_time_high_uS or signal_time_low_uS are greater than this value, duty is assumed to be (1 or 0)// TRY THIS FIRST
+  // OR: could be implemented such if ISR has not been triggered within this time, duty is assumed to be last state // TRY THIS SECOND (but put in place variables to make it so)
+
+  // Signal Variables
+
+  volatile bool A_state = false;  // Last state of the A input
+  volatile bool B_state = false;
+  uint32_t signal_time_high_uS = 0;
+  uint32_t signal_time_low_uS = 0;
+  uint32_t signal_period_uS;
+  float signal_Hz = 0.0;
+  float signal_duty = 0.0;
+
+  // Encoder Position Variables
+  volatile int16_t encoderPos;
+  volatile int16_t encoderLastPos;
+  float encoderDeg;
+  float encoderRad;
+
+  // Encoder velocity
+  int16_t encoder_rpm;
+  int16_t encoder_rps;
+  int16_t encoder_radSec;
+  int16_t encoder_degSec;
+
+
+
+
+
+  // Constants
+
+
+  //Data Structure
+
+
+  typedef enum {
+    UNDEFINED,
+    CLOCKWISE,
+    COUNTER_CLOCKWISE
+  } direction;
+
+  direction currentDirection = UNDEFINED;
+
+  // struct dataArray {
+  //   uint16_t i_data[8];        // Always holds the direct ADC value read from data aquisition module
+  //   float f_data[8];           // holds the calculated voltage or current value, or a copy of the ADC as a float
+  //   uint32_t timeStamp_mS[8];  // holds the time data was sampled in mS from time of power up
+  // } d_array;
+
+  // Digital Data Structures
+
+
+  // Functional Methods
+  void begin();
+  void analyseSignal();
+
+
+  // API - Use to interact with library
+  void printSignalStats();
+  float getFreq();
+  float getDuty();
+  float calculateSpeed_rps();
+  float calculateSpeed_rpm();
+  float calculateSpeed_rph();
+
+  void calibrate_position();
+
+
+
+  void convertPosDeg();
+
+  void convertPosRad();
+
+  void calculateSpeed_radSec();
+
+
+
+  void printPosStats();
+
+
+
+
+
+  void _isr_A();
+  void _isr_B();
+
+
+
+
+private:
+  float secondsElapsed();
+  void encoderWrap();
+
+
+ volatile uint32_t currentSampleTime_uS = 0;
+ volatile uint32_t previousSampleTime_uS = 0;
+  int16_t posOffset = 0;
+};
+
+
+#endif
